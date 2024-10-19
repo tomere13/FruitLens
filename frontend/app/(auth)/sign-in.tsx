@@ -34,14 +34,12 @@ function SignIn() {
       // Call the loginUser function to attempt login
       await loginUser(form.email, form.password);
 
-      // Handle successful login (e.g., navigate to the next screen, clear form, etc.)
+      // If login is successful, clear the form and navigate to home
       setForm({ email: "", password: "" });
 
-      Alert.alert("Success", "You are now logged in!");
-      router.push("/home");
     } catch (error: any) {
       // Handle error (e.g., show an alert)
-      Alert.alert("Error", "Login failed. Please try again.");
+      Alert.alert("Error", error.message || "Login failed. Please try again.");
     } finally {
       // Reset the isSubmitting state
       setIsSubmitting(false);

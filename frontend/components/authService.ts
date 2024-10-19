@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 // Define the base URL of your backend API
@@ -23,6 +24,8 @@ export const registerUser = async (username: string, email: string, password: st
       password,
     });
     alert(response.data.message);
+    router.push("/sign-in");
+
   } catch (error: any) {
     const message = error.response?.data?.message || 'Registration failed';
     alert(message);
@@ -42,6 +45,8 @@ export const loginUser = async (username: string, password: string): Promise<voi
       // Store the token securely using expo-secure-store
       await SecureStore.setItemAsync('authToken', token);
       alert('Login successful');
+      router.push("/home");
+
     } else {
       alert('Login failed, no token provided');
     }

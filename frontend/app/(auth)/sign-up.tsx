@@ -39,11 +39,10 @@ function SignUp() {
       // Handle successful signup (e.g., navigate to login page, clear form, etc.)
       setForm({ username: "", email: "", password: "" });
 
-      Alert.alert("Success", "Your account has been created!");
       router.push("/sign-in");
     } catch (error: any) {
-      // Handle error (e.g., show an alert)
-      Alert.alert("Error", "Signup failed. Please try again.");
+      // Show the specific error message returned from the registerUser function
+      Alert.alert("Error", error.message || "Signup failed. Please try again.");
     } finally {
       // Reset the isSubmitting state
       setIsSubmitting(false);

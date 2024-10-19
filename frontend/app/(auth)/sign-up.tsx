@@ -1,24 +1,54 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import { Image } from "react-native";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { registerUser } from "@/components/authService";
 
-function SignIn() {
+function SignUp() {
   type FormState = {
+    username: string;
     email: string;
     password: string;
   };
 
   const [form, setForm] = useState<FormState>({
+    username: "",
     email: "",
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const submit = () => {};
+
+  const submit = async () => {
+    // Perform basic validation
+    if (!form.username || !form.email || !form.password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    try {
+      // Set isSubmitting to true to show the loader
+      setIsSubmitting(true);
+
+      // Call the registerUser function to attempt signup
+      await registerUser(form.username, form.email, form.password);
+
+      // Handle successful signup (e.g., navigate to login page, clear form, etc.)
+      setForm({ username: "", email: "", password: "" });
+
+      Alert.alert("Success", "Your account has been created!");
+      router.push("/sign-in");
+    } catch (error: any) {
+      // Handle error (e.g., show an alert)
+      Alert.alert("Error", "Signup failed. Please try again.");
+    } finally {
+      // Reset the isSubmitting state
+      setIsSubmitting(false);
+    }
+  };
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
@@ -28,13 +58,20 @@ function SignIn() {
               <Image
                 source={images.logo}
                 resizeMode="contain"
-                className="w-[200px] h-[55px]"
+                className="w-[150px] h-[55px]"
               />
             </Link>
           </View>
           <Text className="text-lg text-black text-semibold mt-10 font-psemibold">
-            Log in to FruitLens
+            Sign up to FruitLens
           </Text>
+          <FormField
+            title="Username"
+            value={form.username}
+            handleChangeText={(e: string) => setForm({ ...form, username: e })}
+            otherStyles="mt-10"
+            keyboardType="username"
+          />
           <FormField
             title="Email"
             value={form.email}
@@ -58,13 +95,13 @@ function SignIn() {
           />
           <View className="justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-black-100 font-pregular">
-              Don't have an Account?
+              Have an account already?
             </Text>
             <Link
-              href={"/sign-up"}
+              href={"/sign-in"}
               className="text-lg font-psemibold text-secondary"
             >
-              Sign up
+              Sign in
             </Link>
           </View>
         </View>
@@ -73,4 +110,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default SignUp;

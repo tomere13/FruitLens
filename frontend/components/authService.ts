@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 // Define the base URL of your backend API
-const BASE_URL = 'http://localhost:5002';  // Ensure this is correct for your environment
+const API_URL = 'http://192.168.1.231:5002';  // Replace with your local machine IP and backend port
 
 // Types for the responses
 interface AuthResponse {
@@ -18,7 +18,7 @@ interface ProtectedResponse {
 // User registration function
 export const registerUser = async (username: string, email: string, password: string): Promise<void> => {
   try {
-    const response = await axios.post<AuthResponse>(`${BASE_URL}/register`, {
+    const response = await axios.post<AuthResponse>(`${API_URL}/register`, {
       username,
       email,
       password,
@@ -35,7 +35,7 @@ export const registerUser = async (username: string, email: string, password: st
 // User login function
 export const loginUser = async (username: string, password: string): Promise<void> => {
   try {
-    const response = await axios.post<AuthResponse>(`${BASE_URL}/login`, {
+    const response = await axios.post<AuthResponse>(`${API_URL}/login`, {
       username,
       password,
     });
@@ -62,7 +62,7 @@ export const getProtectedData = async (): Promise<string> => {
     const token = await SecureStore.getItemAsync('authToken');
 
     if (token) {
-      const response = await axios.get<ProtectedResponse>(`${BASE_URL}/protected`, {
+      const response = await axios.get<ProtectedResponse>(`${API_URL}/protected`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

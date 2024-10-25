@@ -45,7 +45,7 @@ function Home() {
       alert("Error logging out. Please try again."); // Provide error feedback to the user
     }
   };
-  
+
   const handleImageUpload = async (imageUri: string) => {
     try {
       setIsSubmitting(true); // Set submitting state to show loader if needed
@@ -66,7 +66,7 @@ function Home() {
       <ScrollView>
         <View className="w-full justify-center min-h-[70vh] px-4 my-6">
           <View className="items-center">
-            <Link href="/">
+            <Link href="/home">
               <Image
                 source={images.logo} // Assuming logo is in your assets
                 resizeMode="contain"
@@ -84,14 +84,7 @@ function Home() {
             textStyles={undefined}
             isLoading={isSubmitting}
           />
-           <CustomButton
-            title={"Log out"}
-            handlePress={handleLogout}
-            containerStyles="mt-7"
-            textStyles={undefined}
-            isLoading={isSubmitting}
-          />
-
+          
           {image && (
             <View className="items-center mt-5">
               <Text className="text-md text-black text-semibold mb-2">

@@ -101,7 +101,7 @@ function ChangePassword() {
           <View className="w-full justify-center px-4 my-6 flex-1">
             
             <View className="items-center">
-              <Link href="/">
+              <Link href="/home">
                 <Image
                   source={images.logo} // Assuming logo is in your assets
                   resizeMode="contain"

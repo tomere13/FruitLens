@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getUserProfile, updateUserProfile } from "@/components/authService";
 import CustomButton from "@/components/CustomButton";
 import FormField from "@/components/FormField";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { images } from "../../constants";
 
 function Profile() {
@@ -92,11 +92,14 @@ function Profile() {
           <View className="w-full justify-center px-4 my-6 flex-1">
             {/* Logo at the top */}
             <View className="items-center">
+            <Link href="/home">
+
               <Image
                 source={images.logo} // Assuming logo is available in your images
                 resizeMode="contain"
                 style={{ width: 200, height: 55 }}
               />
+              </Link>
             </View>
 
             <Text className="text-lg text-black text-semibold mt-10 font-psemibold">

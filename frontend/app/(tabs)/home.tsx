@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View, Image, Alert } from "react-native";
+import { ScrollView, Text, View, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import CustomButton from "@/components/CustomButton";
@@ -10,6 +10,9 @@ import { images } from "../../constants";
 function Home() {
   const [image, setImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [detectedObjects, setDetectedObjects] = useState<
+    { label: string; confidence: number }[]
+  >([]); // Store detected objects as an array of objects
 
   // Function to open camera and take a picture
   const openCamera = async () => {
@@ -36,9 +39,11 @@ function Home() {
       setIsSubmitting(true); // Set submitting state to show loader if needed
       const response = await uploadImage(imageUri); // Call the uploadImage service
       console.log("Detected objects:", response); // Log the response from the backend
-      Alert.alert("Success", "Objects detected: " + JSON.stringify(response)); // Display the response
+
+      // Store detected objects in the state
+      setDetectedObjects(response);
     } catch (error) {
-      Alert.alert("Error", "Image upload failed. Please try again.");
+      console.error("Error uploading image:", error);
     } finally {
       setIsSubmitting(false); // Reset the submitting state
     }
@@ -75,9 +80,65 @@ function Home() {
               </Text>
               <Image
                 source={{ uri: image }}
-                style={{ width: 200, height: 200 }}
+                style={{ width: 300, height: 300 }}
                 resizeMode="contain"
               />
+
+              {/* Show loading spinner if submitting */}
+              {isSubmitting && (
+                <ActivityIndicator size="large" color="#0000ff" />
+              )}
+
+              {/* Display the detected objects below the image */}
+              {!isSubmitting && detectedObjects.length > 0 && (
+                <View className="mt-5 w-full px-4">
+                  <Text className="text-md text-black font-bold mb-2">
+                    Detected Objects:
+                  </Text>
+                  <View
+                    style={{ borderWidth: 1, borderColor: "#ddd", padding: 10 }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        borderBottomWidth: 1,
+                        borderColor: "#ddd",
+                        paddingBottom: 5,
+                      }}
+                    >
+                      <Text
+                        style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}
+                      >
+                        Object Name
+                      </Text>
+                      <Text
+                        style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}
+                      >
+                        Confidence
+                      </Text>
+                    </View>
+                    {detectedObjects.map((obj, index) => (
+                      <View
+                        key={index}
+                        style={{
+                          flexDirection: "row",
+                          borderBottomWidth:
+                            index !== detectedObjects.length - 1 ? 1 : 0,
+                          borderColor: "#ddd",
+                          paddingVertical: 5,
+                        }}
+                      >
+                        <Text style={{ flex: 1, fontSize: 14 }}>
+                          {obj.label}
+                        </Text>
+                        <Text style={{ flex: 1, fontSize: 14 }}>
+                          {(obj.confidence * 100).toFixed(2)}%
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
           )}
         </View>

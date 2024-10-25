@@ -1,21 +1,22 @@
 import certifi
-from flask import Flask, jsonify, request
+import os
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify  # Add request here
 from flask_cors import CORS
-from flask_pymongo import PyMongo
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from ultralytics import YOLO
 import cv2
 import numpy as np
 
+# Import blueprints from the routes folder
+from routes.register import register_bp
+from routes.login import login_bp
+
+# Import shared instances from extensions
+from extensions import bcrypt, mongo, jwt
+
 app = Flask(__name__)
-bcrypt = Bcrypt(app)
-jwt = JWTManager(app)
 model = YOLO('yolov8n.pt')
 CORS(app)  # This will allow cross-origin requests
-
-import os
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -23,42 +24,14 @@ load_dotenv()
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
-mongo = PyMongo(app, tlsCAFile=certifi.where())
+# Initialize shared instances with the app
+bcrypt.init_app(app)
+mongo.init_app(app, tlsCAFile=certifi.where())
+jwt.init_app(app)
 
-@app.route('/register', methods=['POST'])
-def register():
-    users = mongo.db.users
-    username = request.json.get('username')
-    password = request.json.get('password')
-
-    if users.find_one({'username': username}):
-        return jsonify({'message': 'User already exists'}), 409
-
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    users.insert_one({'username': username, 'password': hashed_pw})
-
-    return jsonify({'message': 'User registered successfully'}), 201
-
-@app.route('/login', methods=['POST'])
-def login():
-    users = mongo.db.users
-    username = request.json.get('username')
-    password = request.json.get('password')
-
-    user = users.find_one({'username': username})
-
-    if user and bcrypt.check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=str(user['_id']))
-        return jsonify({'token': access_token}), 200
-
-    return jsonify({'message': 'Invalid credentials'}), 401
-
-@app.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify({'message': f'Hello user {current_user}'}), 200
-
+# Register blueprints
+app.register_blueprint(register_bp)
+app.register_blueprint(login_bp)
 
 @app.route('/process-image', methods=['POST'])
 def process_image():
@@ -96,4 +69,3 @@ def process_image():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)
-

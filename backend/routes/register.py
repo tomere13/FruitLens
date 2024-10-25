@@ -10,11 +10,13 @@ def register():
     users = mongo.db.users
     username = request.json.get('username')
     password = request.json.get('password')
+    email = request.json.get('email')
+
 
     if users.find_one({'username': username}):
         return jsonify({'message': 'User already exists'}), 409
 
     hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    users.insert_one({'username': username, 'password': hashed_pw})
+    users.insert_one({'username': username, 'password': hashed_pw,'email':email})
 
     return jsonify({'message': 'User registered successfully'}), 201

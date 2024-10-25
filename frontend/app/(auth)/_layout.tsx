@@ -20,6 +20,13 @@ const AuthLayout = () => {
           
         }}>
       </Stack.Screen>
+      <Stack.Screen 
+        name="changepassword"
+        options={{
+          headerShown: false
+          
+        }}>
+      </Stack.Screen>
     </Stack>
     </>
   );

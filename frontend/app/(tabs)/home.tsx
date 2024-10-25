@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { ScrollView, Text, View, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "@/components/scanService"; // Import the service
+import { logout } from "@/components/authService"; // Import the service
+
 import { images } from "../../constants";
 
 function Home() {
@@ -33,7 +35,17 @@ function Home() {
       handleImageUpload(result.assets[0].uri); // Call the function to upload the image
     }
   };
-
+  const handleLogout = async () => {
+    try {
+      await logout(); // Ensure logout is awaited to complete before proceeding
+      alert("You have been logged out successfully."); // Notify the user of successful logout
+      router.push("/sign-in"); // Redirect the user to the sign-in page after logout
+    } catch (error) {
+      console.error("Logout failed:", error); // Log any errors encountered
+      alert("Error logging out. Please try again."); // Provide error feedback to the user
+    }
+  };
+  
   const handleImageUpload = async (imageUri: string) => {
     try {
       setIsSubmitting(true); // Set submitting state to show loader if needed
@@ -68,6 +80,13 @@ function Home() {
           <CustomButton
             title={"Open Camera"}
             handlePress={openCamera}
+            containerStyles="mt-7"
+            textStyles={undefined}
+            isLoading={isSubmitting}
+          />
+           <CustomButton
+            title={"Log out"}
+            handlePress={handleLogout}
             containerStyles="mt-7"
             textStyles={undefined}
             isLoading={isSubmitting}

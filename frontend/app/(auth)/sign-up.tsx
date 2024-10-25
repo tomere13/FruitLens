@@ -86,7 +86,7 @@ function SignUp() {
             keyboardType="password"
           />
           <CustomButton
-            title={"Sign In"}
+            title={"Sign Upr"}
             handlePress={submit}
             containerStyles="mt-7"
             textStyles={undefined}

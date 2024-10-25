@@ -10,19 +10,19 @@ import { loginUser } from "@/components/authService";
 
 function SignIn() {
   type FormState = {
-    email: string;
+    username: string;
     password: string;
   };
 
   const [form, setForm] = useState<FormState>({
-    email: "",
+    username: "",
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submit = async () => {
     // Perform basic validation
-    if (!form.email || !form.password) {
+    if (!form.username || !form.password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -32,10 +32,10 @@ function SignIn() {
       setIsSubmitting(true);
 
       // Call the loginUser function to attempt login
-      await loginUser(form.email, form.password);
+      await loginUser(form.username, form.password);
 
       // If login is successful, clear the form and navigate to home
-      setForm({ email: "", password: "" });
+      setForm({ username: "", password: "" });
 
     } catch (error: any) {
       // Handle error (e.g., show an alert)
@@ -62,11 +62,11 @@ function SignIn() {
             Log in to FruitLens
           </Text>
           <FormField
-            title="Email"
-            value={form.email}
-            handleChangeText={(e: string) => setForm({ ...form, email: e })}
+            title="Username"
+            value={form.username}
+            handleChangeText={(e: string) => setForm({ ...form, username: e })}
             otherStyles="mt-7"
-            keyboardType="email-address"
+            keyboardType="username"
           />
           <FormField
             title="Password"

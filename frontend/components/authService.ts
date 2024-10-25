@@ -1,3 +1,5 @@
+// authService.ts
+
 import axios from "axios";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -13,6 +15,11 @@ interface AuthResponse {
 
 interface ProtectedResponse {
   message: string;
+}
+
+interface UserProfile {
+  username: string;
+  email: string;
 }
 
 // User registration function
@@ -104,5 +111,83 @@ export const logout = async (): Promise<void> => {
     console.error("Error during logout:", error);
     alert("Error logging out. Please try again.");
     throw new Error("Failed to logout");
+  }
+};
+
+// Get user profile function
+export const getUserProfile = async (): Promise<UserProfile> => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+
+    if (token) {
+      const response = await axios.get<UserProfile>(`${API_URL}/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } else {
+      throw new Error("No credentials stored");
+    }
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message || "Error fetching user profile";
+    throw new Error(message); // Throw an error to be caught in the component
+  }
+};
+
+// Update user profile function
+export const updateUserProfile = async (
+  updatedData: UserProfile
+): Promise<void> => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+
+    if (token) {
+      await axios.put(`${API_URL}/profile`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      // Optionally, handle the response or return a message
+    } else {
+      throw new Error("No credentials stored");
+    }
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message || "Error updating user profile";
+    throw new Error(message);
+  }
+};
+
+// Change password function
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+
+    if (token) {
+      // Make a PUT request to change the user's password
+      await axios.put(
+        `${API_URL}/change-password`,
+        { current_password: currentPassword, new_password: newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      router.push("/profile");
+
+    } else {
+      throw new Error("No credentials stored");
+    }
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message || "Error updating password";
+    throw new Error(message); // Optionally throw the error to be caught by the caller
   }
 };

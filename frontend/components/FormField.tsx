@@ -1,7 +1,8 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Image } from "react-native";
-import { icons, images } from "../constants";
+import { icons } from "../constants";
+
 const FormField = ({
   title,
   value,
@@ -9,8 +10,8 @@ const FormField = ({
   handleChangeText,
   otherStyles,
   keyboardType,
-  secureTextEntry, // Add this prop
-
+  secureTextEntry,
+  multiline = false, // Add multiline prop with default value false
   ...props
 }: {
   title: string;
@@ -19,14 +20,19 @@ const FormField = ({
   handleChangeText: any;
   otherStyles: string;
   keyboardType: string;
-  secureTextEntry?: boolean; // Make this optional
-
+  secureTextEntry?: boolean;
+  multiline?: boolean; // Add this as an optional prop
 }) => {
   const [showPassword, setshowPassword] = useState<Boolean>(false);
+
   return (
     <View className={`space-y-2 ${otherStyles}`}>
-      <Text className=" text-base text-black-100 font-pmedium">{title}</Text>
-      <View className="border-2 border-grey-100 w-full h-16 px-4 bg-lime-100 rounded-xl focus:border-secondary items-center flex-row">
+      <Text className="text-base text-black-100 font-pmedium">{title}</Text>
+      <View
+        className={`border-2 border-grey-100 w-full px-4 bg-lime-100 rounded-xl focus:border-secondary flex-row ${
+          multiline ? "h-32 pt-3" : "h-16 items-center"
+        }`} // Adjust height based on multiline
+      >
         <TextInput
           className="flex-1 text-black font-psemibold text-base"
           value={value}
@@ -34,6 +40,9 @@ const FormField = ({
           placeholderTextColor="#7b7b8b"
           onChangeText={handleChangeText}
           secureTextEntry={(title === "Password" && !showPassword) || secureTextEntry}
+          multiline={multiline} // Enable multiline if the prop is true
+          numberOfLines={multiline ? 4 : 1} // Set a default number of lines if multiline
+          textAlignVertical="top" // Align text at the top for multiline
         />
         {title === "Password" && (
           <TouchableOpacity onPress={() => setshowPassword(!showPassword)}>

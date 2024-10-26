@@ -2,9 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Tabs, router } from "expo-router"; // Add router to navigate
 import { icons } from "../../constants";
 import { Image } from "react-native";
-import { logout } from "@/components/authService"; // Assuming you have a logout function
 import React, { useState } from "react";
-import { images } from "../../constants";
 
 const TabIcon = ({
   icon,

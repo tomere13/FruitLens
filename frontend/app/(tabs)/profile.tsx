@@ -12,12 +12,13 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getUserProfile, logout } from "@/components/authService";
+import { getUserProfile, logout } from "@/services/authService";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { images } from "../../constants";
 import ProfileCard from "@/components/ProfileCard"; // Import the ProfileCard component
 import CustomAlert from "@/components/CustomAlert";
+import CustomLoading from "@/components/CustomLoading";
 
 function Profile() {
   const [profile, setProfile] = useState({
@@ -62,7 +63,11 @@ function Profile() {
           email: profileData.email,
         });
       } catch (error: any) {
-        Alert.alert("Error", error.message || "Failed to load profile data.");
+        setAlertMessage(error.message || "Failed to load profile data.");
+        setAlertVisible(true);
+        setTimeout(() => {
+          setAlertVisible(false);
+        }, 1000 );
       } finally {
         setIsLoading(false);
       }
@@ -77,11 +82,7 @@ function Profile() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="bg-primary h-full">
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      </SafeAreaView>
+      <CustomLoading/>
     );
   }
 

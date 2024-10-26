@@ -6,7 +6,7 @@ import { Image } from "react-native";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import { registerUser } from "@/components/authService";
+import { registerUser } from "@/services/authService";
 import CustomAlert from "@/components/CustomAlert";
 
 function SignUp() {

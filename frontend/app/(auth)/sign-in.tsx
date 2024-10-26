@@ -7,7 +7,7 @@ import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import CustomAlert from "@/components/CustomAlert";
 import { Link, router } from "expo-router";
-import { loginUser } from "@/components/authService";
+import { loginUser } from "@/services/authService";
 
 function SignIn() {
   type FormState = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Alert, ScrollView, Text, View, ActivityIndicator, KeyboardAvoidingView, Platform, Image, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getUserProfile, changePassword } from "@/components/authService";
+import { getUserProfile, changePassword } from "@/services/authService";
 import CustomButton from "@/components/CustomButton";
 import FormField from "@/components/FormField";
 import { Link, router, useNavigation } from "expo-router";
@@ -72,7 +72,7 @@ function ChangePassword() {
       setTimeout(() => {
         setAlertVisible(false);
         router.push('/profile');
-      }, 750 );
+      }, 1000 );
     } catch (error: any) {
       setAlertMessage("Changed password failed. Please try again.");
       setAlertVisible(true);

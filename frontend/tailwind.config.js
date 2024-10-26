@@ -10,6 +10,11 @@ module.exports = {
           100: "#FF9001",
           200: "#FF8E01",
         },
+        topo:{
+          DEFAULT: "#40A2E3",
+          100: "#BBE2EC",
+          200: "#40A2E3",
+        },
         black: {
           DEFAULT: "#000",
           100: "#1E1E2D",

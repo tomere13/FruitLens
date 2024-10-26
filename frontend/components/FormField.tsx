@@ -29,15 +29,15 @@ const FormField = ({
     <View className={`space-y-2 ${otherStyles}`}>
       <Text className="text-base text-black-100 font-pmedium">{title}</Text>
       <View
-        className={`border-2 border-grey-100 w-full px-4 bg-white rounded-xl focus:border-secondary flex-row ${
+        className={`border border-topo-100 w-full px-4 bg-white rounded-xl focus:border-topo-200 flex-row ${
           multiline ? "h-32 pt-3" : "h-16 items-center"
         }`} // Adjust height based on multiline
       >
         <TextInput
-          className="flex-1 text-black font-psemibold text-base"
+          className="flex-1 text-black text-base"
           value={value}
           placeholder={placeholder}
-          placeholderTextColor="#7b7b8b"
+          placeholderTextColor="#D3D3D3FF"
           onChangeText={handleChangeText}
           secureTextEntry={(title === "Password" && !showPassword) || secureTextEntry}
           multiline={multiline} // Enable multiline if the prop is true

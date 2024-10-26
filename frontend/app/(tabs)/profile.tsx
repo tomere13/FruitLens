@@ -47,7 +47,7 @@ function Profile() {
       setAlertVisible(true);
       setTimeout(() => {
         setAlertVisible(false);
-      }, 750 );
+      }, 1000 );
     } finally {
       setIsLoggingOut(false); // Reset loading state
     }

@@ -27,6 +27,9 @@ function SignIn() {
     if (!form.username || !form.password) {
       setAlertMessage("Please fill in all fields");
       setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 1000 );
       return;
     }
   
@@ -47,7 +50,7 @@ function SignIn() {
       setAlertVisible(true);
       setTimeout(() => {
         setAlertVisible(false);
-      }, 750 );
+      }, 1000 );
     } finally {
       setIsSubmitting(false);
     }

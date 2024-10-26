@@ -55,7 +55,7 @@ function SignUp() {
       setAlertVisible(true);
       setTimeout(() => {
         setAlertVisible(false);
-      }, 750 );
+      }, 1000 );
     } finally {
       setIsSubmitting(false);
     }

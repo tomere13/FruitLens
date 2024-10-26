@@ -76,6 +76,9 @@ function ChangePassword() {
     } catch (error: any) {
       setAlertMessage("Changed password failed. Please try again.");
       setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 1000 );
     } finally {
       setIsSubmitting(false);
     }

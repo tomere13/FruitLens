@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View, Image, ActivityIndicator } from "react-native";
+import { ScrollView, Text, View, Image, ActivityIndicator, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "@/services/scanService"; // Import the service
+import { openaiService } from "@/services/openaiService"; // Import the OpenAI service
 
 import { images } from "../../constants";
 
@@ -13,7 +14,10 @@ function Home() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [detectedObjects, setDetectedObjects] = useState<
     { label: string; confidence: number }[]
-  >([]); // Store detected objects as an array of objects
+  >([]);
+  const [prompt, setPrompt] = useState<string>(""); // State for the OpenAI prompt
+  const [aiResponse, setAiResponse] = useState<string>(""); // State for the OpenAI response
+  const [loadingAI, setLoadingAI] = useState<boolean>(false); // State for AI request loading
 
   // Function to open camera and take a picture
   const openCamera = async () => {
@@ -34,7 +38,6 @@ function Home() {
       handleImageUpload(result.assets[0].uri); // Call the function to upload the image
     }
   };
- 
 
   const handleImageUpload = async (imageUri: string) => {
     try {
@@ -48,6 +51,20 @@ function Home() {
       console.error("Error uploading image:", error);
     } finally {
       setIsSubmitting(false); // Reset the submitting state
+    }
+  };
+
+  const handleGenerateText = async () => {
+    if (!prompt) return alert("Please enter a prompt.");
+
+    try {
+      setLoadingAI(true);
+      const response = await openaiService(prompt); // Call the OpenAI service with the prompt
+      setAiResponse(response.generated_text); // Store the generated text
+    } catch (error) {
+      console.error("Error generating text:", error);
+    } finally {
+      setLoadingAI(false);
     }
   };
 
@@ -74,7 +91,35 @@ function Home() {
             textStyles={undefined}
             isLoading={isSubmitting}
           />
-          
+
+          {/* Prompt Input Field for OpenAI */}
+          <View className="mt-10">
+            <TextInput
+              placeholder="Enter a prompt for OpenAI"
+              value={prompt}
+              onChangeText={setPrompt}
+              className="border border-gray-300 p-3 rounded-md text-black"
+            />
+            <CustomButton
+              title="Generate Text"
+              handlePress={handleGenerateText}
+              containerStyles="mt-4"
+              isLoading={loadingAI} textStyles={undefined}            />
+          </View>
+
+          {/* Display OpenAI Response */}
+          {loadingAI ? (
+            <ActivityIndicator size="large" color="#0000ff" className="mt-4" />
+          ) : (
+            aiResponse && (
+              <View className="mt-5 p-4 bg-gray-100 rounded-md">
+                <Text className="text-md text-black font-semibold">AI Response:</Text>
+                <Text className="text-black mt-2">{aiResponse}</Text>
+              </View>
+            )
+          )}
+
+          {/* Display Captured Image and Detected Objects */}
           {image && (
             <View className="items-center mt-5">
               <Text className="text-md text-black text-semibold mb-2">

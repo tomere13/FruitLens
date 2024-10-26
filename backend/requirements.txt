@@ -1,0 +1,13 @@
+certifi
+Flask
+flask-cors
+flask-pymongo
+flask-bcrypt
+flask-jwt-extended
+ultralytics
+opencv-python
+numpy
+python-dotenv
+langchain
+langchain-community
+openai

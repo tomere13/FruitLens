@@ -5,6 +5,7 @@ import { images } from "../../constants";
 import { Image } from "react-native";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
+import CustomAlert from "@/components/CustomAlert";
 import { Link, router } from "expo-router";
 import { loginUser } from "@/components/authService";
 
@@ -19,32 +20,39 @@ function SignIn() {
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   const submit = async () => {
-    // Perform basic validation
     if (!form.username || !form.password) {
-      Alert.alert("Error", "Please fill in all fields");
+      setAlertMessage("Please fill in all fields");
+      setAlertVisible(true);
       return;
     }
-
+  
     try {
-      // Set isSubmitting to true to show the loader
       setIsSubmitting(true);
-
-      // Call the loginUser function to attempt login
       await loginUser(form.username, form.password);
-
-      // If login is successful, clear the form and navigate to home
       setForm({ username: "", password: "" });
-
-    } catch (error: any) {
-      // Handle error (e.g., show an alert)
-      Alert.alert("Error", error.message || "Login failed. Please try again.");
+  
+      // Show alert for a successful login and delay navigation
+      setAlertMessage("Login successful!");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+        router.push('/home');
+      }, 750 );
+    } catch (error:any) {
+      setAlertMessage("Login failed. Please try again.");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 750 );
     } finally {
-      // Reset the isSubmitting state
       setIsSubmitting(false);
     }
   };
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
@@ -95,6 +103,13 @@ function SignIn() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertVisible}
+        message={alertMessage}
+        onClose={() => setAlertVisible(false)}
+      />
     </SafeAreaView>
   );
 }

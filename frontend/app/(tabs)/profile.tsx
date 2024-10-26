@@ -17,6 +17,7 @@ import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { images } from "../../constants";
 import ProfileCard from "@/components/ProfileCard"; // Import the ProfileCard component
+import CustomAlert from "@/components/CustomAlert";
 
 function Profile() {
   const [profile, setProfile] = useState({
@@ -27,16 +28,26 @@ function Profile() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false); // State to manage loading
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   // Function to handle logout
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true); // Show loading state
       await logout(); // Perform the logout
-      router.push("/sign-in"); // Redirect the user to the sign-in page after logout
-    } catch (error) {
-      console.error("Logout failed:", error); // Log any errors encountered
-      alert("Error logging out. Please try again."); // Provide error feedback to the user
+      setAlertMessage("Signed out sucessfully");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+        router.push('/sign-in');
+      }, 750 );
+    } catch (error:any) {
+      setAlertMessage("Signed out failed. Please try again.");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 750 );
     } finally {
       setIsLoggingOut(false); // Reset loading state
     }
@@ -114,6 +125,11 @@ function Profile() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <CustomAlert
+        visible={alertVisible}
+        message={alertMessage}
+        onClose={() => setAlertVisible(false)}
+      />
     </SafeAreaView>
   );
 }

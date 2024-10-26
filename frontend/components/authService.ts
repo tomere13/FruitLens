@@ -34,11 +34,9 @@ export const registerUser = async (
       email,
       password,
     });
-    alert(response.data.message);
-    router.push("/sign-in");
   } catch (error: any) {
-    const message = error.response?.data?.message || "Registration failed";
-    alert(message);
+    throw new Error(error);
+
   }
 };
 
@@ -57,14 +55,11 @@ export const loginUser = async (
     if (token) {
       // Store the token securely using expo-secure-store
       await SecureStore.setItemAsync("authToken", token);
-      alert("Login successful");
-      router.push("/home");
     } else {
-      alert("Login failed, no token provided");
     }
   } catch (error: any) {
-    const message = error.response?.data?.message || "Login failed";
-    alert(message);
+    throw new Error(error);
+    
   }
 };
 
@@ -98,7 +93,6 @@ export const logout = async (): Promise<void> => {
   try {
     // Delete the stored token
     await SecureStore.deleteItemAsync("authToken");
-    alert("Logout successful");
 
     // Optional: Verify that the token is cleared
     const token = await SecureStore.getItemAsync("authToken");
@@ -108,8 +102,6 @@ export const logout = async (): Promise<void> => {
       console.log("Token still exists:", token);
     }
   } catch (error) {
-    console.error("Error during logout:", error);
-    alert("Error logging out. Please try again.");
     throw new Error("Failed to logout");
   }
 };
@@ -180,7 +172,6 @@ export const changePassword = async (
           },
         }
       );
-      router.push("/profile");
 
     } else {
       throw new Error("No credentials stored");

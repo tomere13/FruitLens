@@ -14,14 +14,20 @@ const App = () => {
           <Link href="/">
             <Image
               source={images.logo}
-              className="w-[180px] h-[84px]"
+              className="w-[180px] h-[84px] "
               resizeMode="contain"
             />
           </Link>
           <Image
-            source={images.model}
-            className="max-w-[380px] w-full h-[400px]"
-          />
+      source={images.model}
+      style={{
+        width: 300,
+        height: 380,
+        borderRadius: 180, // Adjust this for more or less rounding
+        overflow: "hidden",
+      }}
+      resizeMode="cover" // Use "cover" to fill the space and maintain aspect ratio
+    />
           <View className="relative mt-5">
             <Text className="text-3xl text-black font-bold text-center">
               Discover Endless Possibilaties with{" "}
@@ -32,7 +38,7 @@ const App = () => {
             exploration with Aura
           </Text>
           <CustomButton
-            title="Continue with Email"
+            title="Continue with Username"
             handlePress={() => router.push("/sign-in")}
             containerStyles="w-full mt-7"
             textStyles={undefined}

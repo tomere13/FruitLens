@@ -6,6 +6,7 @@ import CustomButton from "@/components/CustomButton";
 import FormField from "@/components/FormField";
 import { Link, router, useNavigation } from "expo-router";
 import { images } from "../../constants"; // Assuming images is imported from your constants
+import CustomAlert from "@/components/CustomAlert";
 
 function ChangePassword() {
   type FormState = {
@@ -24,6 +25,8 @@ function ChangePassword() {
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   const navigation = useNavigation();
 
@@ -58,17 +61,21 @@ function ChangePassword() {
         // Change the password if the current and new passwords are provided
         await changePassword(form.current_password, form.new_password);
       }
-
-      Alert.alert("Success", "Password updated successfully");
-
       // Reset password fields after submission
       setForm((prevForm) => ({
         ...prevForm,
         current_password: "",
         new_password: "",
       }));
+      setAlertMessage("Changed password successful!");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+        router.push('/profile');
+      }, 750 );
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to update password.");
+      setAlertMessage("Changed password failed. Please try again.");
+      setAlertVisible(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -156,6 +163,11 @@ function ChangePassword() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <CustomAlert
+        visible={alertVisible}
+        message={alertMessage}
+        onClose={() => setAlertVisible(false)}
+      />
     </SafeAreaView>
   );
 }

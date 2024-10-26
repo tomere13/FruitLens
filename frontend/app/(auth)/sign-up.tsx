@@ -7,6 +7,7 @@ import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { registerUser } from "@/components/authService";
+import CustomAlert from "@/components/CustomAlert";
 
 function SignUp() {
   type FormState = {
@@ -21,6 +22,8 @@ function SignUp() {
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   const submit = async () => {
     // Perform basic validation
@@ -38,13 +41,22 @@ function SignUp() {
 
       // Handle successful signup (e.g., navigate to login page, clear form, etc.)
       setForm({ username: "", email: "", password: "" });
+      setAlertMessage("Signed up successful!");
+      setAlertVisible(true);
+      
+      setTimeout(() => {
+        setAlertVisible(false);
+        router.push('/sign-in');
+      }, 750 );
 
-      router.push("/sign-in");
+
     } catch (error: any) {
-      // Show the specific error message returned from the registerUser function
-      Alert.alert("Error", error.message || "Signup failed. Please try again.");
+      setAlertMessage("Register failed. Please try again.");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 750 );
     } finally {
-      // Reset the isSubmitting state
       setIsSubmitting(false);
     }
   };
@@ -86,7 +98,7 @@ function SignUp() {
             keyboardType="password"
           />
           <CustomButton
-            title={"Sign Upr"}
+            title={"Sign Up"}
             handlePress={submit}
             containerStyles="mt-7"
             textStyles={undefined}
@@ -105,6 +117,12 @@ function SignUp() {
           </View>
         </View>
       </ScrollView>
+            {/* Custom Alert */}
+            <CustomAlert
+        visible={alertVisible}
+        message={alertMessage}
+        onClose={() => setAlertVisible(false)}
+      />
     </SafeAreaView>
   );
 }

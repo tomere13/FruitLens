@@ -29,7 +29,7 @@ const FormField = ({
     <View className={`space-y-2 ${otherStyles}`}>
       <Text className="text-base text-black-100 font-pmedium">{title}</Text>
       <View
-        className={`border-2 border-grey-100 w-full px-4 bg-lime-100 rounded-xl focus:border-secondary flex-row ${
+        className={`border-2 border-grey-100 w-full px-4 bg-white rounded-xl focus:border-secondary flex-row ${
           multiline ? "h-32 pt-3" : "h-16 items-center"
         }`} // Adjust height based on multiline
       >

@@ -9,9 +9,9 @@ from routes.register import register_bp
 from routes.login import login_bp
 from routes.process import process_bp
 from routes.profile import profile_bp
-from routes.changepassword import change_password_bp
+from routes.changepassword import change_password_bpa
 from routes.openai import openai_bp
-
+from routes.scraper import scraper_bp
 # Import shared instances from extensions
 from extensions import bcrypt, mongo, jwt
 
@@ -37,6 +37,8 @@ app.register_blueprint(process_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(change_password_bp)
 app.register_blueprint(openai_bp)
+app.register_blueprint(scraper_bp)
+
 
 
 

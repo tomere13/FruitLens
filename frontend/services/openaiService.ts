@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://192.168.1.198:5002"; // Replace with your local machine IP and backend port
+const API_URL = "http://192.168.1.231:5002"; // Replace with your local machine IP and backend port
 
 interface OpenAIResponse {
   generated_text: string;

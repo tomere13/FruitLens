@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View, Image, ActivityIndicator, TextInput } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+  Image,
+  ActivityIndicator,
+  TextInput,
+  ViewStyle,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import CustomButton from "@/components/CustomButton";
@@ -11,9 +19,13 @@ import { images } from "../../constants";
 
 function Home() {
   const [image, setImage] = useState<string | null>(null);
+  const [imageDimensions, setImageDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [detectedObjects, setDetectedObjects] = useState<
-    { label: string; confidence: number }[]
+    { label: string; confidence: number; box: number[] }[]
   >([]);
   const [prompt, setPrompt] = useState<string>(""); // State for the OpenAI prompt
   const [aiResponse, setAiResponse] = useState<string>(""); // State for the OpenAI response
@@ -34,8 +46,10 @@ function Home() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri); // Set the image URI to display it
-      handleImageUpload(result.assets[0].uri); // Call the function to upload the image
+      const { width, height, uri } = result.assets[0];
+      setImage(uri); // Set the image URI to display it
+      setImageDimensions({ width, height }); // Store the original image dimensions
+      handleImageUpload(uri); // Call the function to upload the image
     }
   };
 
@@ -104,7 +118,9 @@ function Home() {
               title="Generate Text"
               handlePress={handleGenerateText}
               containerStyles="mt-4"
-              isLoading={loadingAI} textStyles={undefined}            />
+              isLoading={loadingAI}
+              textStyles={undefined}
+            />
           </View>
 
           {/* Display OpenAI Response */}
@@ -113,23 +129,87 @@ function Home() {
           ) : (
             aiResponse && (
               <View className="mt-5 p-4 bg-gray-100 rounded-md">
-                <Text className="text-md text-black font-semibold">AI Response:</Text>
+                <Text className="text-md text-black font-semibold">
+                  AI Response:
+                </Text>
                 <Text className="text-black mt-2">{aiResponse}</Text>
               </View>
             )
           )}
 
           {/* Display Captured Image and Detected Objects */}
-          {image && (
+          {image && imageDimensions && (
             <View className="items-center mt-5">
               <Text className="text-md text-black text-semibold mb-2">
                 Captured Image:
               </Text>
-              <Image
-                source={{ uri: image }}
-                style={{ width: 300, height: 300 }}
-                resizeMode="contain"
-              />
+              <View
+                style={{
+                  position: "relative",
+                  width: 300,
+                  height: 300,
+                }}
+              >
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: 300, height: 300 }}
+                  resizeMode="contain"
+                />
+
+                {/* Overlay bounding boxes */}
+                {!isSubmitting &&
+                  detectedObjects.map((obj, index) => {
+                    // Scaling factors
+                    const scaleX = 300 / imageDimensions.width;
+                    const scaleY = 300 / imageDimensions.height;
+
+                    // Bounding box coordinates
+                    const [x1, y1, x2, y2] = obj.box;
+
+                    // Ensure coordinates are numbers
+                    if (
+                      isNaN(x1) ||
+                      isNaN(y1) ||
+                      isNaN(x2) ||
+                      isNaN(y2) ||
+                      isNaN(scaleX) ||
+                      isNaN(scaleY)
+                    ) {
+                      console.warn("Invalid coordinates for object:", obj);
+                      return null;
+                    }
+
+                    // Define boxStyle with explicit type
+                    const boxStyle: ViewStyle = {
+                      position: "absolute",
+                      left: x1 * scaleX,
+                      top: y1 * scaleY,
+                      width: (x2 - x1) * scaleX,
+                      height: (y2 - y1) * scaleY,
+                      borderWidth: 2,
+                      borderColor: "red",
+                    };
+
+                    return (
+                      <View key={index} style={boxStyle}>
+                        {/* Optionally, display the label */}
+                        <Text
+                          style={{
+                            position: "absolute",
+                            top: -20,
+                            left: 0,
+                            color: "red",
+                            fontWeight: "bold",
+                            backgroundColor: "rgba(255, 255, 255, 0.7)",
+                            padding: 2,
+                          }}
+                        >
+                          {obj.label} ({(obj.confidence * 100).toFixed(1)}%)
+                        </Text>
+                      </View>
+                    );
+                  })}
+              </View>
 
               {/* Show loading spinner if submitting */}
               {isSubmitting && (
@@ -154,12 +234,12 @@ function Home() {
                       }}
                     >
                       <Text
-                        style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}
+                        style={{ flex: 1, fontWeight: "bold", fontSize: 14 }}
                       >
                         Object Name
                       </Text>
                       <Text
-                        style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}
+                        style={{ flex: 1, fontWeight: "bold", fontSize: 14 }}
                       >
                         Confidence
                       </Text>
@@ -175,10 +255,10 @@ function Home() {
                           paddingVertical: 5,
                         }}
                       >
-                        <Text style={{ flex: 1, fontSize: 14 }}>
+                        <Text style={{ flex: 1, fontSize: 12 }}>
                           {obj.label}
                         </Text>
-                        <Text style={{ flex: 1, fontSize: 14 }}>
+                        <Text style={{ flex: 1, fontSize: 12 }}>
                           {(obj.confidence * 100).toFixed(2)}%
                         </Text>
                       </View>

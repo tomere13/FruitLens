@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
 // Define the base URL of your backend API
-const API_URL = "http://192.168.1.231:5002"; // Replace with your local machine IP and backend port
+const API_URL = "http://192.168.1.198:5002"; // Replace with your local machine IP and backend port
 
 // Types for the responses
 interface AuthResponse {
@@ -36,7 +36,6 @@ export const registerUser = async (
     });
   } catch (error: any) {
     throw new Error(error);
-
   }
 };
 
@@ -59,7 +58,6 @@ export const loginUser = async (
     }
   } catch (error: any) {
     throw new Error(error);
-    
   }
 };
 
@@ -141,7 +139,7 @@ export const updateUserProfile = async (
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       // Optionally, handle the response or return a message
     } else {
       throw new Error("No credentials stored");
@@ -172,13 +170,11 @@ export const changePassword = async (
           },
         }
       );
-
     } else {
       throw new Error("No credentials stored");
     }
   } catch (error: any) {
-    const message =
-      error.response?.data?.message || "Error updating password";
+    const message = error.response?.data?.message || "Error updating password";
     throw new Error(message); // Optionally throw the error to be caught by the caller
   }
 };

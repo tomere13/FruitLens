@@ -5,16 +5,17 @@ import {
   View,
   Image,
   ActivityIndicator,
+  Alert,
   TextInput,
   ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Location from "expo-location";
 import { Link } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "@/services/scanService"; // Import the service
 import { openaiService } from "@/services/openaiService"; // Import the OpenAI service
-
 import { images } from "../../constants";
 
 function Home() {
@@ -23,10 +24,22 @@ function Home() {
     width: number;
     height: number;
   } | null>(null);
+  const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Location-related states
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  const [address, setAddress] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // States for detected objects
   const [detectedObjects, setDetectedObjects] = useState<
     { label: string; confidence: number; box: number[] }[]
   >([]);
+
+  // States for OpenAI prompt and response
   const [prompt, setPrompt] = useState<string>(""); // State for the OpenAI prompt
   const [aiResponse, setAiResponse] = useState<string>(""); // State for the OpenAI response
   const [loadingAI, setLoadingAI] = useState<boolean>(false); // State for AI request loading
@@ -49,10 +62,16 @@ function Home() {
       const { width, height, uri } = result.assets[0];
       setImage(uri); // Set the image URI to display it
       setImageDimensions({ width, height }); // Store the original image dimensions
-      handleImageUpload(uri); // Call the function to upload the image
+
+      // Upload image and detect objects
+      await handleImageUpload(uri);
+
+      // Fetch location after image detection
+      await fetchLocation();
     }
   };
 
+  // Function to handle image upload and object detection
   const handleImageUpload = async (imageUri: string) => {
     try {
       setIsSubmitting(true); // Set submitting state to show loader if needed
@@ -68,6 +87,63 @@ function Home() {
     }
   };
 
+  // Function to request location permissions and get current location
+  const fetchLocation = async () => {
+    setIsFetchingLocation(true);
+    try {
+      // Request permission to access location
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        Alert.alert("Permission Denied", "Cannot access location.");
+        return;
+      }
+
+      // Get current location
+      let currentLocation = await Location.getCurrentPositionAsync({});
+      setLocation(currentLocation);
+
+      // Reverse geocode to get address
+      if (currentLocation) {
+        const { latitude, longitude } = currentLocation.coords;
+        await getAddressFromCoordinates(latitude, longitude);
+      }
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setErrorMsg("Error fetching location.");
+    } finally {
+      setIsFetchingLocation(false);
+    }
+  };
+
+  // Function to reverse geocode coordinates to address
+  const getAddressFromCoordinates = async (
+    latitude: number,
+    longitude: number
+  ) => {
+    try {
+      const geocode = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (geocode && geocode.length > 0) {
+        const addressObj = geocode[0];
+        const formattedAddress = `${addressObj.street || ""}, ${
+          addressObj.city || ""
+        }`;
+        setAddress(formattedAddress);
+        return formattedAddress;
+      } else {
+        setErrorMsg("No address found for the provided coordinates.");
+      }
+    } catch (error) {
+      console.error("Error during reverse geocoding:", error);
+      setErrorMsg("Error retrieving address.");
+    }
+  };
+
+  // Function to handle generating text using OpenAI
   const handleGenerateText = async () => {
     if (!prompt) return alert("Please enter a prompt.");
 
@@ -103,7 +179,7 @@ function Home() {
             handlePress={openCamera}
             containerStyles="mt-7"
             textStyles={undefined}
-            isLoading={isSubmitting}
+            isLoading={isSubmitting || isFetchingLocation}
           />
 
           {/* Prompt Input Field for OpenAI */}
@@ -125,7 +201,11 @@ function Home() {
 
           {/* Display OpenAI Response */}
           {loadingAI ? (
-            <ActivityIndicator size="large" color="#0000ff" className="mt-4" />
+            <ActivityIndicator
+              size="large"
+              color="#0000ff"
+              style={{ marginTop: 10 }}
+            />
           ) : (
             aiResponse && (
               <View className="mt-5 p-4 bg-gray-100 rounded-md">
@@ -137,7 +217,7 @@ function Home() {
             )
           )}
 
-          {/* Display Captured Image and Detected Objects */}
+          {/* Display Captured Image, Detected Objects, and Location */}
           {image && imageDimensions && (
             <View className="items-center mt-5">
               <Text className="text-md text-black text-semibold mb-2">
@@ -211,10 +291,35 @@ function Home() {
                   })}
               </View>
 
-              {/* Show loading spinner if submitting */}
-              {isSubmitting && (
-                <ActivityIndicator size="large" color="#0000ff" />
+              {/* Show loading spinner if fetching location or submitting */}
+              {(isFetchingLocation || isSubmitting) && (
+                <ActivityIndicator
+                  size="large"
+                  color="#0000ff"
+                  style={{ marginTop: 10 }}
+                />
               )}
+
+              {/* Display Location Address */}
+              <View className="mt-5">
+                {errorMsg ? (
+                  <Text style={{ color: "red" }}>Error: {errorMsg}</Text>
+                ) : address ? (
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: "black",
+                      textAlign: "center",
+                    }}
+                  >
+                    Current Address:
+                    {"\n"}
+                    {address}
+                  </Text>
+                ) : (
+                  <Text>Fetching address...</Text>
+                )}
+              </View>
 
               {/* Display the detected objects below the image */}
               {!isSubmitting && detectedObjects.length > 0 && (

@@ -34,13 +34,10 @@ const TabIcon = ({
 };
 
 const TabsLayout = () => {
-
-
   return (
     <>
       <View style={{ flex: 1 }}>
         {/* Logout button using TouchableOpacity */}
-
 
         {/* Tabs Component */}
         <Tabs
@@ -50,8 +47,7 @@ const TabsLayout = () => {
             tabBarInactiveTintColor: "#000000FF",
             tabBarStyle: {
               height: 95,
-              paddingTop: 15
-              
+              paddingTop: 15,
             },
           }}
         >
@@ -72,15 +68,15 @@ const TabsLayout = () => {
           />
 
           <Tabs.Screen
-            name="favorite"
+            name="smartcart"
             options={{
-              title: "Favorite",
+              title: "SmartCart",
               headerShown: false,
               tabBarIcon: ({ color, focused }) => (
                 <TabIcon
-                  icon={icons.bookmark}
+                  icon={icons.cart}
                   color={color}
-                  name="Favorite"
+                  name="SmartCart"
                   focused={focused}
                 />
               ),

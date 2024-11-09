@@ -9,7 +9,7 @@ from routes.register import register_bp
 from routes.login import login_bp
 from routes.process import process_bp
 from routes.profile import profile_bp
-from routes.changepassword import change_password_bpa
+from routes.changepassword import change_password_bp
 from routes.openai import openai_bp
 from routes.scraper import scraper_bp
 # Import shared instances from extensions

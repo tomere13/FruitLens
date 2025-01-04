@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.1.44:5002"; // Replace with your local machine IP and backend port
+import Constants from "expo-constants";
+
+// Access the API URL from the `extra` field
+const API_URL = Constants.expoConfig?.extra?.API_URL || "";
 
 export const uploadImage = async (imageUri: string) => {
   const formData = new FormData();

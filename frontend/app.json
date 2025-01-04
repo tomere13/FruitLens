@@ -2,6 +2,9 @@
   "expo": {
     "name": "FruitLens",
     "slug": "FruitLens",
+    "extra": {
+      "API_URL": "http://192.168.1.44:5002"
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

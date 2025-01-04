@@ -4,8 +4,10 @@ import axios from "axios";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
-// Define the base URL of your backend API
-const API_URL = "http://192.168.1.44:5002"; // Replace with your local machine IP and backend port
+import Constants from "expo-constants";
+
+// Access the API URL from the `extra` field
+const API_URL = Constants.expoConfig?.extra?.API_URL || "";
 
 // Types for the responses
 interface AuthResponse {

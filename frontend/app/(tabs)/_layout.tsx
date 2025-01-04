@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { Tabs, router } from "expo-router"; // Add router to navigate
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { Tabs } from "expo-router"; // Using Tabs directly
+import React from "react";
 import { icons } from "../../constants";
-import { Image } from "react-native";
-import React, { useState } from "react";
 
 const TabIcon = ({
   icon,
@@ -35,88 +34,84 @@ const TabIcon = ({
 
 const TabsLayout = () => {
   return (
-    <>
-      <View style={{ flex: 1 }}>
-        {/* Logout button using TouchableOpacity */}
-
-        {/* Tabs Component */}
-        <Tabs
-          screenOptions={{
-            tabBarShowLabel: false,
-            tabBarActiveTintColor: "#0D9276",
-            tabBarInactiveTintColor: "#000000FF",
-            tabBarStyle: {
-              height: 95,
-              paddingTop: 15,
-            },
+    <View style={{ flex: 1 }}>
+      {/* Tabs Component */}
+      <Tabs
+        screenOptions={{
+          tabBarShowLabel: true, // Enables labels
+          tabBarActiveTintColor: "#0D9276",
+          tabBarInactiveTintColor: "#000000FF",
+          tabBarStyle: {
+            height: 95,
+            paddingTop: 15,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12, // Adjust label font size here
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="home"
+          options={{
+            title: "Home",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.home}
+                color={color}
+                name=""
+                focused={focused}
+              />
+            ),
           }}
-        >
-          <Tabs.Screen
-            name="home"
-            options={{
-              title: "Home",
-              headerShown: false,
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.home}
-                  color={color}
-                  name="Home"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-
-          <Tabs.Screen
-            name="smartcart"
-            options={{
-              title: "SmartCart",
-              headerShown: false,
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.cart}
-                  color={color}
-                  name="SmartCart"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-
-          <Tabs.Screen
-            name="contact"
-            options={{
-              title: "Contact",
-              headerShown: false,
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.contact}
-                  color={color}
-                  name="Contact"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: "Profile",
-              headerShown: false,
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.profile}
-                  color={color}
-                  name="Profile"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-        </Tabs>
-      </View>
-    </>
+        />
+        <Tabs.Screen
+          name="smartcart"
+          options={{
+            title: "SmartCart",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.cart}
+                color={color}
+                name=""
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="contact"
+          options={{
+            title: "Contact",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.contact}
+                color={color}
+                name=""
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name=""
+                focused={focused}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 };
 

@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
 // Define the base URL of your backend API
-const API_URL = "http://192.168.1.231:5002"; // Replace with your local machine IP and backend port
+const API_URL = "http://192.168.1.44:5002"; // Replace with your local machine IP and backend port
 
 // Types for the responses
 interface AuthResponse {

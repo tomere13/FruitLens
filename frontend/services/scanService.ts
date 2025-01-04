@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.1.198:5002"; // Replace with your local machine IP and backend port
+const API_URL = "http://192.168.1.44:5002"; // Replace with your local machine IP and backend port
 
 export const uploadImage = async (imageUri: string) => {
   const formData = new FormData();

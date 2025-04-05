@@ -1,0 +1,4 @@
+# Add these to your backend/.env file:
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+RECIPIENT_EMAIL=etomer9@gmail.com

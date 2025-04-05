@@ -90,7 +90,6 @@ const Contact = () => {
             otherStyles="mt-7"
             keyboardType="default"
             multiline={true} // Enable multiline for the message field
-
           />
 
           {/* Send Message Button */}

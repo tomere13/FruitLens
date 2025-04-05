@@ -30,33 +30,42 @@ def process_image():
         # Run YOLOv8 object detection on the image
         results = model(img)
 
-        # Get the names and coordinates of the detected objects
-        detected_objects = []
+        # Find the object with highest confidence
+        highest_confidence_object = None
+        highest_confidence = 0
 
         for result in results:
             boxes = result.boxes
             for box in boxes:
-                # Get bounding box coordinates and convert them to native Python floats
-                x1, y1, x2, y2 = box.xyxy[0].tolist()
-                x1 = float(x1)
-                y1 = float(y1)
-                x2 = float(x2)
-                y2 = float(y2)
-
-                # Get label
-                label_index = int(box.cls[0])
-                label = model.names[label_index]
-
                 # Get confidence score
                 confidence = float(box.conf[0])
+                
+                # Check if this object has higher confidence than the current highest
+                if confidence > highest_confidence:
+                    # Get bounding box coordinates and convert them to native Python floats
+                    x1, y1, x2, y2 = box.xyxy[0].tolist()
+                    x1 = float(x1)
+                    y1 = float(y1)
+                    x2 = float(x2)
+                    y2 = float(y2)
 
-                detected_objects.append({
-                    "label": label,
-                    "box": [x1, y1, x2, y2],
-                    "confidence": confidence
-                })
+                    # Get label
+                    label_index = int(box.cls[0])
+                    label = model.names[label_index]
+                    
+                    # Update highest confidence object
+                    highest_confidence = confidence
+                    highest_confidence_object = {
+                        "label": label,
+                        "box": [x1, y1, x2, y2],
+                        "confidence": confidence
+                    }
 
-        return jsonify(detected_objects)
+        # Return the highest confidence object or an empty array if nothing was detected
+        if highest_confidence_object:
+            return jsonify([highest_confidence_object])
+        else:
+            return jsonify([])
 
     except Exception as e:
         print(f"Error processing image: {str(e)}")

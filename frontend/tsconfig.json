@@ -1,7 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "jsx": "react", // Ensure JSX support is enabled
+    "jsx": "react-jsx",
     "strict": true,
     "paths": {
       "@/*": ["./*"]

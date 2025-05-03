@@ -5,7 +5,7 @@ import sendEmail from "react-native-email";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Image } from "react-native";
-import { images } from "../../constants";
+import { images } from "@/constants";
 
 const Contact = () => {
   const [form, setForm] = useState({

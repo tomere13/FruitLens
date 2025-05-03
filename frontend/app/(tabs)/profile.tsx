@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getUserProfile, logout } from "@/services/authService";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import { images } from "../../constants";
+import { images } from "@/constants";
 import ProfileCard from "@/components/ProfileCard"; // Import the ProfileCard component
 import CustomAlert from "@/components/CustomAlert";
 import CustomLoading from "@/components/CustomLoading";

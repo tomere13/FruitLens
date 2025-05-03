@@ -16,7 +16,7 @@ import CustomButton from "@/components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "@/services/scanService"; // Import the service
 import { openaiService } from "@/services/openaiService"; // Import the OpenAI service
-import { images } from "../../constants";
+import { images } from "@/constants";
 
 // List of fruits and vegetables (from smartcart.tsx)
 const validFruits: string[] = [
@@ -277,7 +277,7 @@ function Home() {
   function formatResponseText(text: string) {
     const lines = text.split("\n");
 
-    // We’ll store everything in these arrays:
+    // We'll store everything in these arrays:
     const ingredientsSection: string[] = [];
     const instructionsSection: string[] = [];
     const otherContent: string[] = [];
@@ -285,7 +285,7 @@ function Home() {
     // We'll keep track of all ingredient lines (wrapped in <i>…</i>).
     const globalIngredients: string[] = [];
 
-    // These flags help us know which section we’re currently populating.
+    // These flags help us know which section we're currently populating.
     let inInstructions = false;
 
     // Pass 1: Classify each line and gather ingredients
@@ -321,13 +321,13 @@ function Home() {
         normalized.includes("method") ||
         normalized === "preparation"
       ) {
-        // Mark that we’re now in instructions
+        // Mark that we're now in instructions
         inInstructions = true;
         // We'll add a standardized heading later. Skip adding the raw line to avoid duplication.
         continue;
       }
 
-      // If we’re in instructions, check if it looks like a numbered step
+      // If we're in instructions, check if it looks like a numbered step
       if (inInstructions) {
         if (
           trimmed.match(/^\d+\./) || // e.g., "1."

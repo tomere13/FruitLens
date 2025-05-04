@@ -96,7 +96,7 @@ const Contact = () => {
           <CustomButton
             title="Send Message"
             handlePress={handleSendEmail}
-            containerStyles="mt-7"
+            containerStyles={{ marginTop: 20 }}
             isLoading={isSubmitting}
             textStyles={undefined}
           />

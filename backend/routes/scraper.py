@@ -17,6 +17,8 @@ CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 chrome_options = Options()
 chrome_options.add_argument("--headless")  # Run in headless mode
 chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 # Scrape a single URL (existing functionality)
 @scraper_bp.route('/scrape', methods=['POST'])
@@ -98,11 +100,15 @@ def scrape_prices():
                 processed_item = item.rstrip('s').capitalize()
                 result = scraper.search_product(location, processed_item)
                 all_results.append(result)
+            
+            # Calculate cart summary
+            cart_summary = scraper._calculate_cart_summary(all_results)
                 
             return jsonify({
                 'status': 'success',
                 'message': 'All items processed',
-                'results': all_results
+                'results': all_results,
+                'cart_summary': cart_summary
             })
             
         finally:

@@ -112,16 +112,16 @@ function Profile() {
             <CustomButton
               title={"Change Password"}
               handlePress={handleChangePassword}
-              containerStyles="mt-7"
+              containerStyles={{ marginTop: 20 }}
               isLoading={isSubmitting}
               textStyles={undefined}
             />
             <CustomButton
               title={"Log out"}
               handlePress={handleLogout}
-              containerStyles="mt-7 bg-red-500"
-              isLoading={isSubmitting}
-              textStyles="text-white" // Optional: Change text color for better contrast
+              containerStyles={{ marginTop: 20 }}
+              isLoading={ isSubmitting}
+              textStyles={undefined} // Optional: Change text color for better contrast
             />
           </View>
         </ScrollView>

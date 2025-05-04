@@ -53,6 +53,9 @@ def process_image():
                     label_index = int(box.cls[0])
                     label = model.names[label_index]
                     
+                    # Capitalize the first letter of the label
+                    label = label.capitalize()
+                    
                     # Update highest confidence object
                     highest_confidence = confidence
                     highest_confidence_object = {

@@ -1,38 +1,60 @@
 import axios from "axios";
-
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
-// Access the API URL from the `extra` field
-const API_URL = Constants.expoConfig?.extra?.API_URL || "";
+// Get the correct API URL based on environment
+const getApiUrl = () => {
+  // If running on device
+  if (Constants.expoConfig?.extra?.isDevice || Platform.OS === "ios" || Platform.OS === "android") {
+    // Use your server's public URL when running on a physical device
+    return "http://192.168.1.172:5002"; // Replace with your actual server URL
+  }
+  
+  // For development/simulator
+  return "http://127.0.0.1:5002";
+};
 
+// Base URL for API calls
+const API_URL = getApiUrl();
+
+/**
+ * Upload an image to the backend for processing
+ * @param {string} imageUri Local URI of the image
+ * @returns {Promise} Promise with the detection results
+ */
 export const uploadImage = async (imageUri: string) => {
-  const formData = new FormData();
-
   try {
-    // Append the file directly with the `uri`, `type`, and `name` by casting it to 'any'
+    // Create form data for file upload
+    const formData = new FormData();
+    const filename = imageUri.split("/").pop();
+    
+    // Check if file has an extension
+    const match = /\.(\w+)$/.exec(filename || "");
+    const type = match ? `image/${match[1]}` : "image/jpeg";
+    
+    // @ts-ignore
     formData.append("image", {
       uri: imageUri,
-      type: "image/jpeg", // Explicitly set the MIME type
-      name: "image.jpg", // Set a filename
-    } as any); // Cast to `any` to avoid TypeScript errors
-
-    // Debug: Log imageUri to ensure it's correct
-    console.log("Image URI:", imageUri);
-
-    // Send the form data to the server
-    const uploadResponse = await axios.post(
-      `${API_URL}/process-image`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    return uploadResponse.data; // Return the response data (detected objects)
+      name: filename,
+      type,
+    });
+    
+    console.log("Uploading to:", `${API_URL}/process-image`);
+    
+    // Send the image to the backend for processing - fixed endpoint to match Flask route
+    const response = await axios.post(`${API_URL}/process-image`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    
+    // Return the detection results
+    return response.data;
   } catch (error) {
-    console.error("Error uploading image", error);
-    throw error; // Rethrow the error to handle it in the component
+    console.error("Error uploading image:", error);
+    throw error;
   }
 };
+
+// Export the API_URL for use in other services
+export { API_URL };

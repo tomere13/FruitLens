@@ -89,7 +89,7 @@ function SignIn() {
           <CustomButton
             title={"Sign In"}
             handlePress={submit}
-            containerStyles="mt-7"
+            containerStyles={{ marginTop: 20 }}
             textStyles={undefined}
             isLoading={isSubmitting}
           />

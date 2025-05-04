@@ -40,7 +40,7 @@ const App = () => {
           <CustomButton
             title="Continue with Username"
             handlePress={() => router.push("/sign-in")}
-            containerStyles="w-full mt-7"
+            containerStyles={{ width: "100%", marginTop: 20 }}
             textStyles={undefined}
             isLoading={false}
           />

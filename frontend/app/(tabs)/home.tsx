@@ -347,9 +347,8 @@ function Home() {
     }
 
     // Build the final ingredients section if we have any global ingredients
-    // We always show them at the top with a single heading.
+    // We add them directly without a heading
     if (globalIngredients.length > 0) {
-      ingredientsSection.push("<h>Ingredients:</h>");
       ingredientsSection.push(...globalIngredients);
     }
 
@@ -430,9 +429,55 @@ function Home() {
       }
     }
 
+    // IMPORTANT: Process ingredient items markers FIRST before other elements
+    parts = processedText.split(/<i>|<\/i>/);
+    let processedWithIngredients = "";
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (!part) continue;
+
+      // Even indices are regular text
+      if (i % 2 === 0) {
+        processedWithIngredients += part;
+      } else {
+        // This is an ingredient item - clean it up
+        let cleanIngredient = part;
+        if (cleanIngredient.startsWith("-")) {
+          cleanIngredient = cleanIngredient.substring(1).trim();
+        } else if (cleanIngredient.startsWith("•")) {
+          cleanIngredient = cleanIngredient.substring(1).trim();
+        } else if (cleanIngredient.startsWith("*")) {
+          cleanIngredient = cleanIngredient.substring(1).trim();
+        }
+
+        console.log("Rendering ingredient item:", cleanIngredient);
+
+        // Format ingredient item
+        result.push(
+          <View
+            key={key++}
+            style={{
+              flexDirection: "row",
+              marginVertical: 2,
+              paddingLeft: 16,
+            }}
+          >
+            <Text style={{ fontSize: 15, color: "#0D9276", marginRight: 8 }}>
+              •
+            </Text>
+            <Text style={{ fontSize: 15, flex: 1 }}>{cleanIngredient}</Text>
+          </View>
+        );
+      }
+    }
+
+    // Update processedText to use the version without ingredients
+    processedText = processedWithIngredients;
+
     // Process steps in instructions
     parts = processedText.split(/<step>|<\/step>/);
-    processedText = ""; // Reset for next processing
+    processedText = "";
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -506,7 +551,7 @@ function Home() {
 
     // Process nutrition facts
     parts = processedText.split(/<n>|<\/n>/);
-    processedText = ""; // Reset for next processing
+    processedText = "";
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -567,49 +612,6 @@ function Home() {
             </Text>
           );
         }
-      }
-    }
-
-    // Process ingredient items markers explicitly and with higher priority
-    parts = processedText.split(/<i>|<\/i>/);
-    processedText = ""; // Reset for next processing
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part) continue;
-
-      // Even indices are regular text
-      if (i % 2 === 0) {
-        processedText += part;
-      } else {
-        // This is an ingredient item - clean it up
-        let cleanIngredient = part;
-        if (cleanIngredient.startsWith("-")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        } else if (cleanIngredient.startsWith("•")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        } else if (cleanIngredient.startsWith("*")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        }
-
-        console.log("Rendering ingredient item:", cleanIngredient);
-
-        // Format ingredient item
-        result.push(
-          <View
-            key={key++}
-            style={{
-              flexDirection: "row",
-              marginVertical: 2,
-              paddingLeft: 16,
-            }}
-          >
-            <Text style={{ fontSize: 15, color: "#0D9276", marginRight: 8 }}>
-              •
-            </Text>
-            <Text style={{ fontSize: 15, flex: 1 }}>{cleanIngredient}</Text>
-          </View>
-        );
       }
     }
 
@@ -755,7 +757,7 @@ function Home() {
               <CustomButton
                 title={"Open Camera"}
                 handlePress={openCamera}
-                containerStyles="mt-5"
+                containerStyles={{ marginTop: 20 }}
                 textStyles={undefined}
                 isLoading={isSubmitting || isFetchingLocation}
               />
@@ -783,14 +785,14 @@ function Home() {
                           <CustomButton
                             title="Get Recipe"
                             handlePress={handleRecipeRequest}
-                            containerStyles="flex-1 px-4 py-2 mx-4"
+                            containerStyles={{ flex: 1, padding: 10, margin: 5 }}
                             textStyles={undefined}
                             isLoading={loadingAI}
                           />
                           <CustomButton
                             title="Nutrition"
                             handlePress={handleNutritionRequest}
-                            containerStyles="flex-1 px-4 py-2 mx-4"
+                            containerStyles={{ flex: 1, padding: 10, margin: 5 }}
                             textStyles={undefined}
                             isLoading={loadingAI}
                           />
@@ -826,7 +828,7 @@ function Home() {
                     setNutritionInfo("");
                     setShowingNutrition(false);
                   }}
-                  containerStyles="mt-8"
+                  containerStyles={{ marginTop: 20 }}
                   textStyles={undefined}
                   isLoading={false}
                 />

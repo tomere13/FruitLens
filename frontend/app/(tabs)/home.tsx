@@ -16,7 +16,7 @@ import CustomButton from "@/components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "@/services/scanService"; // Import the service
 import { openaiService } from "@/services/openaiService"; // Import the OpenAI service
-import { images } from "../../constants";
+import { images } from "@/constants";
 
 // List of fruits and vegetables (from smartcart.tsx)
 const validFruits: string[] = [

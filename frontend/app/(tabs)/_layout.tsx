@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Tabs } from "expo-router"; // Using Tabs directly
 import React from "react";
-import { icons } from "../../constants";
+import { icons } from "@/constants";
 
 const TabIcon = ({
   icon,
@@ -55,7 +55,7 @@ const TabsLayout = () => {
           options={{
             title: "Home",
             headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <TabIcon
                 icon={icons.home}
                 color={color}
@@ -70,7 +70,7 @@ const TabsLayout = () => {
           options={{
             title: "SmartCart",
             headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <TabIcon
                 icon={icons.cart}
                 color={color}
@@ -85,7 +85,7 @@ const TabsLayout = () => {
           options={{
             title: "Contact",
             headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <TabIcon
                 icon={icons.contact}
                 color={color}
@@ -100,7 +100,7 @@ const TabsLayout = () => {
           options={{
             title: "Profile",
             headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <TabIcon
                 icon={icons.profile}
                 color={color}

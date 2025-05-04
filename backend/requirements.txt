@@ -1,14 +1,31 @@
-certifi
-Flask
-flask-cors
-flask-pymongo
-flask-bcrypt
-flask-jwt-extended
-ultralytics
-opencv-python
-numpy
-python-dotenv
-langchain
-langchain-community
-openai
-selenium
+# Web Framework
+Flask==3.0.2
+flask-cors==4.0.0
+flask-pymongo==2.3.0
+flask-bcrypt==4.0.1
+flask-jwt-extended==4.6.0
+
+# Computer Vision & ML
+ultralytics==8.1.2
+opencv-python==4.9.0.80
+numpy==1.26.4
+
+# Environment & Configuration
+python-dotenv==1.0.1
+
+# AI & Language Processing
+langchain==0.1.11
+langchain-community==0.0.24
+openai==1.12.0
+
+# Web Scraping
+selenium==4.15.2
+webdriver-manager==4.0.1
+beautifulsoup4==4.12.3
+requests==2.31.0
+undetected-chromedriver==3.5.5
+
+# Utils
+certifi==2024.2.2
+urllib3==2.2.1
+Werkzeug==3.0.1 

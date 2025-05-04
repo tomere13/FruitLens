@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import CORS
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import os
+from .chp_scraper import CHPScraper
 
 # Define the blueprint
 scraper_bp = Blueprint('scraper_bp', __name__)
+CORS(scraper_bp)  # Enable CORS for all routes in this blueprint
 
 # Path to ChromeDriver from .env
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
@@ -48,7 +51,7 @@ def find_stores():
         results = []
         for item in items:
             driver.get(f"https://www.google.com/search?q={item}+store+near+me")
-            # Example logic: Find the first result title (adjust the XPath or logic based on Google’s structure)
+            # Example logic: Find the first result title (adjust the XPath or logic based on Google's structure)
             closest_store = driver.find_element("xpath", "//h3").text
             results.append({'item': item, 'closest_store': closest_store})
 
@@ -57,3 +60,57 @@ def find_stores():
         return jsonify({'error': str(e)}), 500
     finally:
         driver.quit()
+
+@scraper_bp.route('/api/scrape', methods=['POST'])
+def scrape_prices():
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'status': 'error',
+                'message': 'No JSON data received'
+            }), 400
+            
+        if 'location' not in data or 'items' not in data:
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required fields: location and items'
+            }), 400
+            
+        location = data['location']
+        items = data['items']
+        
+        if not isinstance(items, list):
+            return jsonify({
+                'status': 'error',
+                'message': 'Items must be a list'
+            }), 400
+        
+        # Initialize scraper once for all items
+        scraper = CHPScraper()
+        all_results = []
+        
+        try:
+            # Process each item
+            for item in items:
+                # Remove trailing 's' if exists and capitalize
+                processed_item = item.rstrip('s').capitalize()
+                result = scraper.search_product(location, processed_item)
+                all_results.append(result)
+                
+            return jsonify({
+                'status': 'success',
+                'message': 'All items processed',
+                'results': all_results
+            })
+            
+        finally:
+            scraper.cleanup()  # Ensure we clean up the scraper
+        
+    except Exception as e:
+        print(f"Error in scrape_prices: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500

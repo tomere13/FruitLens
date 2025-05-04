@@ -295,8 +295,33 @@ function Home() {
 
       // If empty, just push to "other" by default
       if (!trimmed) {
-        otherContent.push(rawLine);
+        // Keep empty lines for spacing if needed, or push to otherContent
+        // Let's keep them for now, can be filtered later if causing issues
+        // otherContent.push(rawLine);
         continue;
+      }
+
+      // Normalize the line for heading checks (lowercase, remove trailing colon)
+      const normalized = trimmed.toLowerCase().replace(/:$/, "");
+
+      // RULE: Ignore the main recipe title (often ends with ':')
+      // We check if it ends with ':' and is NOT a known section header we handle
+      const knownHeaders = [
+        "instructions",
+        "directions",
+        "steps",
+        "method",
+        "preparation",
+      ];
+      if (trimmed.endsWith(":") && !knownHeaders.includes(normalized)) {
+        console.log(`Ignoring potential title: ${trimmed}`);
+        continue; // Skip this line
+      }
+
+      // RULE: Ignore standalone "Ingredients" heading from OpenAI
+      if (normalized === "ingredients") {
+        console.log(`Ignoring OpenAI Ingredients heading: ${trimmed}`);
+        continue; // Skip this line
       }
 
       // Check if it's an ingredient line
@@ -309,9 +334,6 @@ function Home() {
         // We skip adding it to any other section, because it belongs to "ingredients".
         continue;
       }
-
-      // Normalize the line for heading checks (lowercase, remove trailing colon)
-      const normalized = trimmed.toLowerCase().replace(/:$/, "");
 
       // Check for an instructions heading
       if (
@@ -385,249 +407,219 @@ function Home() {
   const renderFormattedText = (text: string) => {
     if (!text) return null;
 
-    const result = [];
-    let key = 0;
+    // Define styles based on original inline styles
+    const styles = {
+      heading: {
+        fontSize: 18,
+        fontWeight: "bold" as const,
+        color: "#0D9276",
+        marginTop: 15,
+        marginBottom: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(13, 146, 118, 0.3)",
+        paddingBottom: 3,
+      },
+      stepContainer: {
+        flexDirection: "row" as const,
+        marginVertical: 4,
+        paddingLeft: 8,
+      },
+      stepNumber: {
+        fontSize: 15,
+        fontWeight: "bold" as const,
+        color: "#0D9276",
+        marginRight: 8,
+      },
+      stepText: { fontSize: 15, flex: 1 },
+      ingredientContainer: {
+        flexDirection: "row" as const,
+        marginVertical: 2,
+        paddingLeft: 16,
+      },
+      ingredientBullet: { fontSize: 15, color: "#0D9276", marginRight: 8 },
+      ingredientText: { fontSize: 15, flex: 1 },
+      subHeading: {
+        fontSize: 16,
+        fontWeight: "bold" as const,
+        color: "#444",
+        marginTop: 12,
+        marginBottom: 4,
+        backgroundColor: "rgba(13, 146, 118, 0.1)",
+        paddingVertical: 3,
+        paddingHorizontal: 8,
+        borderRadius: 4,
+      },
+      nutritionFactContainer: {
+        flexDirection: "row" as const,
+        justifyContent: "space-between" as const,
+        marginVertical: 2,
+        paddingVertical: 2,
+        borderBottomWidth: 1,
+        borderBottomColor: "#f0f0f0",
+      },
+      nutritionFactLabel: {
+        flex: 1,
+        fontSize: 15,
+        color: "#333",
+        fontWeight: "500" as const,
+      },
+      nutritionFactValue: {
+        fontSize: 15,
+        fontWeight: "bold" as const,
+        color: "#0D9276",
+      },
+      regularText: { fontSize: 15, marginBottom: 10, color: "#333" }, // Added default color
+    };
 
-    // For debugging
-    console.log(
-      "Text to render contains ingredients marker:",
-      text.includes("<i>")
+    // Split by any known tag, keeping the tags as delimiters using regex lookarounds
+    const parts = text.split(
+      /(<h>|<\/h>|<step>|<\/step>|<i>|<\/i>|<sh>|<\/sh>|<n>|<\/n>)/
     );
 
-    // First, process all markers
-    let processedText = text;
+    const result = [];
+    let key = 0;
+    let currentTag: string | null = null;
+    let tagStack: string[] = []; // Use a stack for potentially nested tags if needed later
 
-    // Process main headings
-    let parts = processedText.split(/<h>|<\/h>/);
-    processedText = ""; // Reset for next processing
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const part of parts) {
+      // Skip empty parts resulting from split
       if (!part) continue;
 
-      // Even indices are regular text (which might contain other markers)
-      if (i % 2 === 0) {
-        processedText += `<regular>${part}</regular>`;
-      } else {
-        // This is a heading
-        result.push(
-          <Text
-            key={key++}
-            style={{
-              fontSize: 18,
-              fontWeight: "bold",
-              color: "#0D9276",
-              marginTop: 15,
-              marginBottom: 5,
-              borderBottomWidth: 1,
-              borderBottomColor: "rgba(13, 146, 118, 0.3)",
-              paddingBottom: 3,
-            }}
-          >
-            {part}
-          </Text>
-        );
+      // Check if the part is an opening tag
+      if (part === "<h>") {
+        tagStack.push("h");
+        currentTag = "h";
+        continue;
       }
-    }
-
-    // Process steps in instructions
-    parts = processedText.split(/<step>|<\/step>/);
-    processedText = ""; // Reset for next processing
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part) continue;
-
-      // Even indices are regular text
-      if (i % 2 === 0) {
-        processedText += part;
-      } else {
-        // This is an instruction step
-        result.push(
-          <View
-            key={key++}
-            style={{
-              flexDirection: "row",
-              marginVertical: 4,
-              paddingLeft: 8,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 15,
-                fontWeight: "bold",
-                color: "#0D9276",
-                marginRight: 8,
-              }}
-            >
-              {part.match(/^\d+/) || part.match(/Step\s*\d+/i) || "•"}
-            </Text>
-            <Text style={{ fontSize: 15, flex: 1 }}>
-              {part.replace(/^\d+\.\s*|^Step\s*\d+:\s*/i, "")}
-            </Text>
-          </View>
-        );
+      if (part === "<step>") {
+        tagStack.push("step");
+        currentTag = "step";
+        continue;
       }
-    }
-
-    // Process subheadings in nutrition section
-    parts = processedText.split(/<sh>|<\/sh>/);
-    processedText = ""; // Reset for next processing
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part) continue;
-
-      // Even indices are regular text
-      if (i % 2 === 0) {
-        processedText += part;
-      } else {
-        // This is a nutrition subheading
-        result.push(
-          <Text
-            key={key++}
-            style={{
-              fontSize: 16,
-              fontWeight: "bold",
-              color: "#444",
-              marginTop: 12,
-              marginBottom: 4,
-              backgroundColor: "rgba(13, 146, 118, 0.1)",
-              paddingVertical: 3,
-              paddingHorizontal: 8,
-              borderRadius: 4,
-            }}
-          >
-            {part}
-          </Text>
-        );
+      if (part === "<i>") {
+        tagStack.push("i");
+        currentTag = "i";
+        continue;
       }
-    }
+      if (part === "<sh>") {
+        tagStack.push("sh");
+        currentTag = "sh";
+        continue;
+      }
+      if (part === "<n>") {
+        tagStack.push("n");
+        currentTag = "n";
+        continue;
+      }
 
-    // Process nutrition facts
-    parts = processedText.split(/<n>|<\/n>/);
-    processedText = ""; // Reset for next processing
+      // Check if the part is a closing tag
+      if (
+        part === "</h>" ||
+        part === "</step>" ||
+        part === "</i>" ||
+        part === "</sh>" ||
+        part === "</n>"
+      ) {
+        tagStack.pop();
+        currentTag = tagStack.length > 0 ? tagStack[tagStack.length - 1] : null;
+        continue;
+      }
 
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part) continue;
+      // If it's not a tag, it's content. Render based on currentTag.
+      // Trim whitespace-only parts unless they are intentional (e.g., multiple newlines)
+      // For simplicity here, we trim and check if empty. Adjust if specific whitespace needed.
+      const trimmedPart = part.trim();
+      if (!trimmedPart) continue; // Skip content that is only whitespace
 
-      // Even indices are regular text
-      if (i % 2 === 0) {
-        processedText += part;
-      } else {
-        // This is a nutrition fact - split into label and value
-        let factParts = part.split(/[:|-]/);
-        if (factParts.length >= 2) {
-          let label = factParts[0].trim();
-          // Remove any leading bullets
-          if (
-            label.startsWith("-") ||
-            label.startsWith("•") ||
-            label.startsWith("*")
-          ) {
-            label = label.substring(1).trim();
-          }
-          let value = factParts.slice(1).join(":").trim(); // Rejoin in case there were multiple colons
-
+      switch (currentTag) {
+        case "h":
           result.push(
-            <View
-              key={key++}
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginVertical: 2,
-                paddingVertical: 2,
-                borderBottomWidth: 1,
-                borderBottomColor: "#f0f0f0",
-              }}
-            >
-              <Text
-                style={{
-                  flex: 1,
-                  fontSize: 15,
-                  color: "#333",
-                  fontWeight: "500",
-                }}
-              >
-                {label}
-              </Text>
-              <Text
-                style={{ fontSize: 15, fontWeight: "bold", color: "#0D9276" }}
-              >
-                {value}
-              </Text>
+            <Text key={key++} style={styles.heading}>
+              {trimmedPart}
+            </Text>
+          );
+          break;
+        case "step":
+          const stepMatch = trimmedPart.match(/^(\d+\.|Step\s*\d+[:.]?)/i);
+          const stepNumber = stepMatch
+            ? stepMatch[1].replace(/[.:]$/, "")
+            : "•";
+          const stepText = trimmedPart.replace(
+            /^(\d+\.|Step\s*\d+[:.]?)\s*/i,
+            ""
+          );
+          result.push(
+            <View key={key++} style={styles.stepContainer}>
+              <Text style={styles.stepNumber}>{stepNumber}</Text>
+              <Text style={styles.stepText}>{stepText}</Text>
             </View>
           );
-        } else {
-          // Fallback if we can't split properly
+          break;
+        case "i":
+          let cleanIngredient = trimmedPart;
+          // Remove leading list markers only if present
+          if (
+            cleanIngredient.startsWith("- ") ||
+            cleanIngredient.startsWith("• ") ||
+            cleanIngredient.startsWith("* ")
+          ) {
+            cleanIngredient = cleanIngredient.substring(2);
+          } else if (
+            cleanIngredient.startsWith("-") ||
+            cleanIngredient.startsWith("•") ||
+            cleanIngredient.startsWith("*")
+          ) {
+            cleanIngredient = cleanIngredient.substring(1).trim();
+          }
+
           result.push(
-            <Text key={key++} style={{ fontSize: 15, marginVertical: 2 }}>
-              {part}
+            <View key={key++} style={styles.ingredientContainer}>
+              <Text style={styles.ingredientBullet}>•</Text>
+              <Text style={styles.ingredientText}>{cleanIngredient}</Text>
+            </View>
+          );
+          break;
+        case "sh":
+          result.push(
+            <Text key={key++} style={styles.subHeading}>
+              {trimmedPart}
             </Text>
           );
-        }
-      }
-    }
-
-    // Process ingredient items markers explicitly and with higher priority
-    parts = processedText.split(/<i>|<\/i>/);
-    processedText = ""; // Reset for next processing
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part) continue;
-
-      // Even indices are regular text
-      if (i % 2 === 0) {
-        processedText += part;
-      } else {
-        // This is an ingredient item - clean it up
-        let cleanIngredient = part;
-        if (cleanIngredient.startsWith("-")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        } else if (cleanIngredient.startsWith("•")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        } else if (cleanIngredient.startsWith("*")) {
-          cleanIngredient = cleanIngredient.substring(1).trim();
-        }
-
-        console.log("Rendering ingredient item:", cleanIngredient);
-
-        // Format ingredient item
-        result.push(
-          <View
-            key={key++}
-            style={{
-              flexDirection: "row",
-              marginVertical: 2,
-              paddingLeft: 16,
-            }}
-          >
-            <Text style={{ fontSize: 15, color: "#0D9276", marginRight: 8 }}>
-              •
-            </Text>
-            <Text style={{ fontSize: 15, flex: 1 }}>{cleanIngredient}</Text>
-          </View>
-        );
-      }
-    }
-
-    // Process the remaining regular text
-    parts = processedText.split(/<regular>|<\/regular>/);
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!part || part.trim() === "") continue;
-
-      if (i % 2 === 1) {
-        // Only process <regular> parts
-        // Regular text without ingredients or other markers
-        result.push(
-          <Text key={key++} style={{ fontSize: 15, marginBottom: 10 }}>
-            {part}
-          </Text>
-        );
+          break;
+        case "n":
+          // Handle nutrition facts
+          let factParts = trimmedPart.split(/[:|-]/);
+          if (factParts.length >= 2) {
+            let label = factParts[0].trim().replace(/^[-•*]\s*/, "");
+            let value = factParts.slice(1).join(":").trim();
+            result.push(
+              <View key={key++} style={styles.nutritionFactContainer}>
+                <Text style={styles.nutritionFactLabel}>{label}</Text>
+                <Text style={styles.nutritionFactValue}>{value}</Text>
+              </View>
+            );
+          } else {
+            // Fallback for nutrition fact - render as regular text?
+            result.push(
+              <Text key={key++} style={styles.regularText}>
+                {trimmedPart}
+              </Text>
+            );
+          }
+          break;
+        default: // No current tag or unknown tag, treat as regular text
+          // Split by newlines to render paragraphs correctly
+          const paragraphs = trimmedPart
+            .split("\n")
+            .filter((p) => p.trim() !== "");
+          paragraphs.forEach((paragraph, index) => {
+            result.push(
+              <Text key={`${key++}-${index}`} style={styles.regularText}>
+                {paragraph}
+              </Text>
+            );
+          });
+          break;
       }
     }
 
